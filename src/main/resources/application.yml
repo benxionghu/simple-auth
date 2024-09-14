@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: spring-cloud-config-client
+
+
+jwt:
+  request-header-key: Authorization
+  tokenPrefix: Bearer
