@@ -7,6 +7,7 @@ import com.simple.simpleauth.model.enums.LoginTypeEnum;
 import com.simple.simpleauth.security.service.IAuthService;
 import com.simple.simpleauth.utils.JwtUtil;
 import com.simple.simpleauth.utils.RedisUtil;
+import com.simple.simpleauth.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +27,8 @@ public class AuthServiceImpl implements IAuthService {
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
     private final AuthenticationManager authenticationManager;
+
+    private static String SYSTEM_ME_CACHE_PREFIX = "SYSTEM:ME:";
 
     /**
      * 本地登陆
@@ -88,14 +91,13 @@ public class AuthServiceImpl implements IAuthService {
      */
     @Override
     public boolean logout() {
-//        Long userId = SecurityUtil.getUserId();
-//        // 删除 token
-//        boolean deletedToken = redisUtil.deleteObject(jwtUtil.USER_TOKEN_CACHE_PREFIX + userId);
-//        // 删除 权限
-//        boolean deletedPermission = redisUtil.deleteObject(jwtUtil.USER_PERMISSIONS_CACHE_PREFIX + userId);
-//        // 删除用户信息
-//        redisUtil.deleteObject(RedisKeyConstants.SYSTEM_ME_CACHE_PREFIX + userId);
-//        return deletedToken && deletedPermission;
-        return false;
+        Long userId = SecurityUtil.getUserId();
+        // 删除 token
+        boolean deletedToken = redisUtil.deleteObject(JwtUtil.USER_TOKEN_CACHE_PREFIX + userId);
+        // 删除 权限
+        boolean deletedPermission = redisUtil.deleteObject(JwtUtil.USER_PERMISSIONS_CACHE_PREFIX + userId);
+        // 删除用户信息
+        redisUtil.deleteObject(SYSTEM_ME_CACHE_PREFIX + userId);
+        return deletedToken && deletedPermission;
     }
 }
