@@ -10,20 +10,20 @@ import com.simple.simpleauth.security.service.IAuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
- * 邮件登录
+ * 手机号登录
  *
- * @Author:benxiong.hu
- * @CreateAt:2024/9/5
- * @ModifyAt:2024/9/5
- * @Version:1.0
+ * @version 1.0
+ * @author: benxiong.hu
+ * @createAt: 2024/11/01 15:54:43
+ * @modifyAt: 2024/11/01 15:54:43
  */
-@Component
+@Service
 @RequiredArgsConstructor
-public class EmailStrategy implements ILoginProcessStrategy {
+public class PhoneStrategy implements ILoginProcessStrategy {
 
     private final IAuthenticationService authenticationService;
 
@@ -32,7 +32,7 @@ public class EmailStrategy implements ILoginProcessStrategy {
      */
     @Override
     public LoginTypeEnum getLoginTypeSupport() {
-        return LoginTypeEnum.EMAIL;
+        return LoginTypeEnum.PHONE;
     }
 
     /**
@@ -42,15 +42,19 @@ public class EmailStrategy implements ILoginProcessStrategy {
      */
     @Override
     public boolean registeredUsers(LoginForm principal) {
-        String email = principal.getEmail();
-        if (!Validator.isEmail(email)) {
-            throw new AuthenticationServiceException("invalid email format");
+        if (!Validator.isMobile(principal.getPhoneNumber())) {
+            throw new AuthenticationServiceException("invalid phone number format");
         }
-        Boolean checkUserExist = authenticationService.checkUserExist(principal, LoginTypeEnum.EMAIL);
-        if (checkUserExist) {
+        if (StringUtils.isEmpty(principal.getSmsCode())) {
+            throw new AuthenticationServiceException("sms code is empty");
+        }
+        if (!authenticationService.checkPhoneCode(principal.getPhoneNumber(), principal.getSmsCode())) {
+            throw new AuthenticationServiceException("sms code is error");
+        }
+        if (authenticationService.checkUserExist(principal, LoginTypeEnum.PHONE)) {
             return true;
         }
-        return authenticationService.registeredUsers(principal, LoginTypeEnum.EMAIL);
+        return authenticationService.registeredUsers(principal, LoginTypeEnum.PHONE);
     }
 
     /**
@@ -60,19 +64,11 @@ public class EmailStrategy implements ILoginProcessStrategy {
      */
     @Override
     public boolean validateParameters(LoginForm principal) {
-        String email = principal.getEmail();
-        String emailCode = principal.getEmailCode();
-        // 1. 校验邮箱合法性
-        if (!Validator.isEmail(email)) {
-            throw new AuthenticationServiceException("invalid email format");
+        if (!Validator.isMobile(principal.getPhoneNumber())) {
+            throw new AuthenticationServiceException("invalid phone number format");
         }
-        // 2. 校验验证码合法性
-        if (!authenticationService.getEmailLength().equals(emailCode.length())) {
-            throw new AuthenticationServiceException("invalid email length format");
-        }
-        // 3. 验证验证码是否正确
-        if (!authenticationService.checkEmailCode(principal.getEmail(), principal.getEmailCode())) {
-            throw new AuthenticationServiceException("invalid email code format");
+        if (StringUtils.isEmpty(principal.getSmsCode())) {
+            throw new AuthenticationServiceException("sms code is empty");
         }
         return true;
     }
@@ -84,7 +80,7 @@ public class EmailStrategy implements ILoginProcessStrategy {
      */
     @Override
     public UserDetails getUserDetailsByPrincipal(LoginForm principal) {
-        UserAuthInfo userAuthInfo = authenticationService.getUserDetailsByPrincipal(principal, LoginTypeEnum.EMAIL);
+        UserAuthInfo userAuthInfo = authenticationService.getUserDetailsByPrincipal(principal, LoginTypeEnum.PHONE);
         return new UserInfoDetail(userAuthInfo);
     }
 }

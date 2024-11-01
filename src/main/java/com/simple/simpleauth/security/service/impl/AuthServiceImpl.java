@@ -67,7 +67,7 @@ public class AuthServiceImpl implements IAuthService {
                 throw new AuthenticationException("token error");
             }
         }
-        LoginResult loginResult = redisUtil.getCacheObject(jwtUtil.USER_TOKEN_CACHE_PREFIX + userId);
+        LoginResult loginResult = redisUtil.getCacheObject(JwtUtil.USER_TOKEN_CACHE_PREFIX + userId);
         if (loginResult == null) {
             // 3.1 表示 refreshToken 过期
             throw new AuthenticationException("token is null");

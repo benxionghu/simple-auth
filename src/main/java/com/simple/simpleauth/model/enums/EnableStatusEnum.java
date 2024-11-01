@@ -13,6 +13,7 @@ import lombok.Getter;
 public enum EnableStatusEnum {
 
     DIS_ENABLE(0, "禁用"),
+
     ENABLE(1, "正常");
 
 //    @EnumValue //  Mybatis-Plus 提供注解表示插入数据库时插入该值

@@ -31,6 +31,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
+ * jwt 相关帮助类
+ *
  * @Author:benxiong.hu
  * @CreateAt:2024/8/12
  * @ModifyAt:2024/8/12

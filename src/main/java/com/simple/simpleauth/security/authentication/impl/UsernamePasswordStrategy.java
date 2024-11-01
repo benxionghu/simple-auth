@@ -1,15 +1,20 @@
 package com.simple.simpleauth.security.authentication.impl;
 
 import com.simple.simpleauth.model.LoginForm;
+import com.simple.simpleauth.model.UserAuthInfo;
+import com.simple.simpleauth.model.UserInfoDetail;
 import com.simple.simpleauth.model.enums.LoginTypeEnum;
 import com.simple.simpleauth.security.authentication.ILoginProcessStrategy;
 import com.simple.simpleauth.security.service.IAuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
+ * 用户名和密码登录
+ *
  * @Author:benxiong.hu
  * @CreateAt:2024/9/3
  * @ModifyAt:2024/9/3
@@ -19,8 +24,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UsernamePasswordStrategy implements ILoginProcessStrategy {
 
-
     private final PasswordEncoder passwordEncoder;
+
     private final IAuthenticationService authenticationService;
 
     /**
@@ -51,7 +56,15 @@ public class UsernamePasswordStrategy implements ILoginProcessStrategy {
      */
     @Override
     public boolean validateParameters(LoginForm principal) {
-        // todo 验证请求参数是否合规
+        String username = principal.getUsername();
+        String password = principal.getPassword();
+        if (username == null) {
+            throw new AuthenticationServiceException("invalid username format");
+        }
+        // 2. 校验密码
+        if (password == null) {
+            throw new AuthenticationServiceException("invalid password format");
+        }
         return true;
     }
 
@@ -62,7 +75,8 @@ public class UsernamePasswordStrategy implements ILoginProcessStrategy {
      */
     @Override
     public UserDetails getUserDetailsByPrincipal(LoginForm principal) {
-        return authenticationService.getUserDetailsByPrincipal(principal, LoginTypeEnum.USERNAME_PASSWORD);
+        UserAuthInfo userAuthInfo = authenticationService.getUserDetailsByPrincipal(principal, LoginTypeEnum.USERNAME_PASSWORD);
+        return new UserInfoDetail(userAuthInfo);
     }
 
     /**

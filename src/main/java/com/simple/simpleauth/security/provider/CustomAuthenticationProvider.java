@@ -67,7 +67,7 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
         // 4. 查询用户信息
         UserDetails userDetails = loginProcessTemplate.getUserDetailsByPrincipal(principal);
         if (userDetails == null) {
-            throw new AuthenticationServiceException(" user not found");
+            throw new AuthenticationServiceException("user not found");
         }
         // 5. 后置校验用户信息
         if (!loginProcessTemplate.validatePostParameters(principal, userDetails)) {

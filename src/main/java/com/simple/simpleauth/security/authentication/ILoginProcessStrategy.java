@@ -37,6 +37,8 @@ public interface ILoginProcessStrategy {
     /**
      * 后置校验用户信息 : 默认校验成功
      */
-    boolean validatePostParameters(LoginForm principal, UserDetails userDetails);
+    default boolean validatePostParameters(LoginForm principal, UserDetails userDetails) {
+        return true;
+    }
 
 }
